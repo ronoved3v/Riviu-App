@@ -1,7 +1,7 @@
 {
-  "name": "testflight",
+  "name": "Riviu App",
   "version": "1.0.0",
-  "description": "TestFlight Checker (full,reject,available)",
+  "description": "RiviuApp",
   "main": "server.js",
   "type": "commonjs",
   "scripts": {

@@ -96,7 +96,7 @@ module.exports = {
   iTunesAdd: async (req, res) => {
     try {
       // Extract the 'trackViewUrl' from the request body.
-      const { trackViewUrl } = req.body;
+      const { trackViewUrl, platform } = req.body;
 
       // Extract the 'appId' from the 'trackViewUrl' using a regular expression.
       const appUrlmatch = trackViewUrl.match(/\/id(\d+)/);
@@ -125,20 +125,30 @@ module.exports = {
       const getAppInformation = await iTunesLookup(appId);
 
       // If app information is not found (returns 'undefined'), return a 404 Not Found response.
-      if (getAppInformation == undefined) {
+      if (getAppInformation === undefined) {
         return res
           .status(404)
           .json({ code: 404, message: "iTunes lookup not found" });
       }
 
-      // Create a new 'AppStore' document using the fetched app information and save it to the database.
-      const newAppStore = new AppStore(getAppInformation);
+      // Create a new 'AppStore' document using the fetched app information and 'platform', and save it to the database.
+      const newAppStore = new AppStore({
+        ...getAppInformation,
+        platform, // Assign the 'platform' value to the 'platform' field in the 'AppStore' schema.
+      });
       await newAppStore.save();
+
+      // Log the incoming request method and URL to a Telegram channel or service (assuming 'telegram' is set up elsewhere in the code).
+
+      await telegram.sendMessage(
+        `*An application has been added*\n*Application name:* ${newAppStore.trackCensoredName}\n*Application ID:* ${newAppStore.trackId}\n*Platform:* ${newAppStore.platform}`
+      );
 
       // Return a 201 Created response with the newly created 'AppStore' document.
       return res.status(201).json(newAppStore);
     } catch (error) {
       // In case of an error during the process, return a 500 Internal Server Error response.
+      console.log(error);
       return res.status(500).json({ code: 500, message: "Error" });
     }
   },

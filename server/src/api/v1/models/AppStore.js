@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const appStoreInfor = new mongoose.Schema(
   {
-    trackId: { type: Number, index: true, unique: true },
+    trackId: { type: String, index: true, unique: true },
     trackViewUrl: { type: String },
     trackCensoredName: { type: String },
     artworkUrl: { type: String },
@@ -16,6 +16,7 @@ const appStoreInfor = new mongoose.Schema(
     averageUserRating: { type: Number },
     releaseDate: { type: Date },
     version: { type: String },
+    platform: { type: String },
     testFlights: [
       {
         type: mongoose.Schema.Types.ObjectId,

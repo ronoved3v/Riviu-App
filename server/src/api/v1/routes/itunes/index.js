@@ -2,10 +2,10 @@ const router = require("express").Router();
 const iTunesController = require("../../controllers/itunes/index");
 
 // Add a app
-router.post("/itunes/add", iTunesController.appStoreAdd);
+router.post("/itunes/add", iTunesController.iTunesAdd);
 
 // Get all app
-router.get("/itunes", iTunesController.getAllApp);
+router.get("/itunes", iTunesController.iTunes);
 
 // Test Router
 router.post("/itunes/search", iTunesController.iTunesSearch);

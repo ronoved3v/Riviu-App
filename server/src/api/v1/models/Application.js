@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const appStoreInfor = new mongoose.Schema(
+const application = new mongoose.Schema(
   {
     trackId: { type: String, index: true, unique: true },
     trackViewUrl: { type: String },
@@ -24,7 +24,7 @@ const appStoreInfor = new mongoose.Schema(
       },
     ],
   },
-  { timestamps: true, collection: "itunesApps" }
+  { timestamps: true, collection: "applications" }
 );
 
-module.exports = mongoose.model("AppStoreInfor", appStoreInfor);
+module.exports = mongoose.model("Application", application);

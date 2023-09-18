@@ -1,17 +1,13 @@
-const AppStore = require("../../models/AppStore");
+const Application = require("../../models/Application");
+const TestFlight = require("../../models/TestFlight");
 const { iTunesLookup, iTunesSearch } = require("../../utils/crawlerDataApple");
 const telegram = require("../../utils/telegramNotification");
 
 module.exports = {
-  // Retrieve List of Apps from iTunes Store Database
-
-  // This asynchronous function, 'iTunes', is an API endpoint used to retrieve a list of apps from the iTunes Store database. It expects no query parameters and fetches the entire list of apps stored in the 'AppStore' collection.
-
-  iTunes: async (req, res) => {
+  applications: async (req, res) => {
     try {
-      // Attempt to find all apps in the 'AppStore' collection.
-      const listAllApp = await AppStore.find();
-
+      // Attempt to find all apps in the 'Application' collection.
+      const listAllApp = await Application.find().populate("testFlights");
       // Check if the fetched list is empty; if so, return a 404 Not Found response.
       if (listAllApp.length === 0) {
         return res.status(404).json({
@@ -39,7 +35,7 @@ module.exports = {
 
   // This asynchronous function, 'iTunesSearch', is an API endpoint used to search for apps on the iTunes Store based on the provided search term ('term'), country, and result limit. These parameters are expected to be provided as query parameters in the HTTP request.
 
-  iTunesSearch: async (req, res) => {
+  applicationSearch: async (req, res) => {
     try {
       // Extract the search parameters ('term', 'country', 'limit') from the query parameters of the HTTP request.
       const { term, country, limit } = req.query;
@@ -67,7 +63,7 @@ module.exports = {
 
   // This asynchronous function, 'iTunesLookup', is an API endpoint used to retrieve detailed information about an app from the iTunes Store based on its unique identifier, 'id', which is expected to be provided as a query parameter in the HTTP request.
 
-  iTunesLookup: async (req, res) => {
+  applicationLookup: async (req, res) => {
     try {
       // Extract the 'id' from the query parameters of the HTTP request.
       const { id } = req.query;
@@ -93,7 +89,7 @@ module.exports = {
 
   // This asynchronous function, 'iTunesAdd', is used to add an app to the iTunes Store database based on the provided 'trackViewUrl' which is expected to contain the App Store URL of the app.
 
-  iTunesAdd: async (req, res) => {
+  applicationAdd: async (req, res) => {
     try {
       // Extract the 'trackViewUrl' from the request body.
       const { trackViewUrl, platform } = req.body;
@@ -113,7 +109,7 @@ module.exports = {
       }
 
       // Check if an app with the same 'trackId' (appId) already exists in the database.
-      const checkAppExisting = await AppStore.findOne({ trackId: appId });
+      const checkAppExisting = await Application.findOne({ trackId: appId });
 
       // If the app already exists, return a 400 Bad Request response.
       if (checkAppExisting)
@@ -122,30 +118,30 @@ module.exports = {
           .json({ code: 400, message: "App already exists" });
 
       // Fetch detailed app information from iTunes Store using the 'iTunesLookup' function.
-      const getAppInformation = await iTunesLookup(appId);
+      const fetchItunes = await iTunesLookup(appId);
 
       // If app information is not found (returns 'undefined'), return a 404 Not Found response.
-      if (getAppInformation === undefined) {
+      if (fetchItunes === undefined) {
         return res
           .status(404)
           .json({ code: 404, message: "iTunes lookup not found" });
       }
 
-      // Create a new 'AppStore' document using the fetched app information and 'platform', and save it to the database.
-      const newAppStore = new AppStore({
-        ...getAppInformation,
-        platform, // Assign the 'platform' value to the 'platform' field in the 'AppStore' schema.
+      // Create a new 'Application' document using the fetched app information and 'platform', and save it to the database.
+      const newApplication = new Application({
+        ...fetchItunes,
+        platform, // Assign the 'platform' value to the 'platform' field in the 'Application' schema.
       });
-      await newAppStore.save();
+      await newApplication.save();
 
       // Log the incoming request method and URL to a Telegram channel or service (assuming 'telegram' is set up elsewhere in the code).
 
       await telegram.sendMessage(
-        `*An application has been added*\n*Application name:* ${newAppStore.trackCensoredName}\n*Application ID:* ${newAppStore.trackId}\n*Platform:* ${newAppStore.platform}`
+        `*An application has been added*\n*Application name:* ${newApplication.trackCensoredName}\n*Application ID:* ${newApplication.trackId}\n*Platform:* ${newApplication.platform}`
       );
 
-      // Return a 201 Created response with the newly created 'AppStore' document.
-      return res.status(201).json(newAppStore);
+      // Return a 201 Created response with the newly created 'Application' document.
+      return res.status(201).json(newApplication);
     } catch (error) {
       // In case of an error during the process, return a 500 Internal Server Error response.
       console.log(error);

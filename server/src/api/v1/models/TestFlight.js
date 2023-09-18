@@ -2,15 +2,14 @@ const mongoose = require("mongoose");
 
 const testFlight = new mongoose.Schema(
   {
-    testFlightId: { type: String, require: true, unique: true },
+    testFlightId: { type: String, require: true, unique: true, index: true },
     testFlightData: {
       appName: { type: String },
-      appIcon: { type: String },
       appStatus: { type: String },
     },
-    appStoreInfor: {
+    application: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "AppStoreInfor",
+      ref: "Application",
     },
   },
   { timestamps: true, collection: "testFlights" }

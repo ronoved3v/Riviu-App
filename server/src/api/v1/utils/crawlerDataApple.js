@@ -121,37 +121,36 @@ module.exports = {
 
       // Extract relevant information
       const testFlightStatus = $("#status > div.beta-status > span").text();
-      const appIcon = $(`link[rel="apple-touch-icon"]`).attr("href");
       const appNameMetaTag = $(`meta[property="og:title"]`).attr("content");
       const appNameRegex = /Join the (.+) beta/;
       const appNameMatch = appNameRegex.exec(appNameMetaTag);
       const appName = appNameMatch ? appNameMatch[1] : "";
 
       // Default app status is "unknown"
-      let appStatus = "unknown";
+      let status = "unknown";
 
-      // Check different testFlightStatus conditions and update appStatus
+      // Check different testFlightStatus conditions and update status
       if (testFlightStatus.includes("This beta is full.")) {
-        appStatus = "full";
+        status = "full";
       } else if (
         testFlightStatus.includes(
           "This beta isn't accepting any new testers right now."
         )
       ) {
-        appStatus = "reject";
+        status = "reject";
       } else if (
         testFlightStatus.includes(
           "open the link on your iPhone, iPad, or Mac after you install TestFlight."
         )
       ) {
-        appStatus = "active";
+        status = "active";
       }
 
       // Return the extracted information
-      return { appName, appIcon, appStatus };
+      return { appName, status };
     } catch (error) {
       // If an error occurs, return appStatus as "removed"
-      return { appStatus: "removed" };
+      return { status: "removed" };
     }
   },
 };
